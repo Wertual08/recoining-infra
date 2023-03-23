@@ -1,0 +1,52 @@
+version: '3.8'
+
+volumes:
+  data-scylla-n1:
+  data-scylla-n2:
+  data-scylla-n3:
+
+services:
+  scylla-n1:
+    container_name: recoining-infra-scylla-n1
+    build:
+      context: scylla
+    command:
+      - "--logger-log-level compaction_manager=warn:init=warn"
+      - "--smp 1"
+    volumes:
+      - data-scylla-n1:/var/lib/scylla
+    ports:
+      - 9042:9042
+      - 19042:19042
+
+  scylla-n2:
+    container_name: recoining-infra-scylla-n2
+    build:
+      context: scylla
+    command:
+      - "--logger-log-level compaction_manager=warn:init=warn"
+      - "--smp 1"
+      - "--seeds=scylla-n1"
+    volumes:
+      - data-scylla-n2:/var/lib/scylla
+    depends_on:
+      - scylla-n1
+    ports:
+      - 9043:9042
+      - 19043:19042
+
+  scylla-n3:
+    container_name: recoining-infra-scylla-n3
+    build:
+      context: scylla
+    command:
+      - "--logger-log-level compaction_manager=warn:init=warn"
+      - "--smp 1"
+      - "--seeds=scylla-n1"
+    volumes:
+      - data-scylla-n3:/var/lib/scylla
+    depends_on:
+      - scylla-n1
+    ports:
+      - 9044:9042
+      - 19044:19042
